@@ -1,3 +1,5 @@
+/* $NetBSD$ */
+
 /*
  * Copyright © 2007 Alistair Crooks.  All rights reserved.
  *
@@ -25,12 +27,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define FUSE_USE_VERSION	26
-
-#include <fuse.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -166,23 +166,6 @@ virtdir_add(virtdir_t *tp, const char *name, size_t size, uint8_t type, const ch
 	return 1;
 }
 
-/* delete an entry from the tree */
-int
-virtdir_del(virtdir_t *tp, const char *name, size_t size)
-{
-	virt_dirent_t	*ep;
-	int			 i;
-
-	if ((ep = virtdir_find(tp, name, size)) == NULL) {
-		return 0;
-	}
-	i = (int)(ep - tp->v);
-	for (tp->c -= 1 ; i < tp->c ; i++) {
-		tp->v[i] = tp->v[i + 1];
-	}
-	return 1;
-}
-
 /* find an entry in the tree */
 virt_dirent_t *
 virtdir_find(virtdir_t *tp, const char *name, size_t namelen)
@@ -246,54 +229,3 @@ closevirtdir(VIRTDIR *dirp)
 	free(dirp->dirname);
 	FREE(dirp);
 }
-
-/* find a target in the tree -- not quick! */
-virt_dirent_t *
-virtdir_find_tgt(virtdir_t *tp, const char *tgt, size_t tgtlen)
-{
-	/* we don't need no stinking binary searches */
-	char	path[MAXPATHLEN];
-	int	i;
-
-	(void) normalise(tgt, tgtlen, path, sizeof(path));
-	for (i = 0 ; i < tp->c ; i++) {
-		if (tp->v[i].tgt && strcmp(tp->v[i].tgt, path) == 0) {
-			return &tp->v[i];
-		}
-	}
-	return NULL;
-}
-
-/* kill all of the space allocated to the tree */
-void
-virtdir_drop(virtdir_t *tp)
-{
-	int	i;
-
-	for (i = 0 ; i < tp->c ; i++) {
-		FREE(tp->v[i].name);
-		if (tp->v[i].tgt) {
-			FREE(tp->v[i].tgt);
-		}
-	}
-	FREE(tp->v);
-}
-
-/* return the value of the root directory of the tree */
-char *
-virtdir_rootdir(virtdir_t *tp)
-{
-	return tp->rootdir;
-}
-
-#ifdef VIRTDIR_DEBUG
-static void
-ptree(virtdir_t * tp)
-{
-	int	i;
-
-	for (i = 0 ; i < tp->c ; i++) {
-		printf("%s, tgt %s\n", tp->v[i].name, tp->v[i].tgt);
-	}
-}
-#endif

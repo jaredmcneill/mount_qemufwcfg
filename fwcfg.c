@@ -150,7 +150,7 @@ fwcfg_read(const char *path, char *buf, size_t size, off_t offset,
 
 	/* Seek to correct offset */
 	while (offset > 0) {
-		const int len = MIN(sizeof(tmp), offset);
+		const int len = MIN(sizeof(tmp), (size_t)offset);
 		read_data(tmp, len);
 		offset -= len;
 	}

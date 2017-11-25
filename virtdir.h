@@ -1,3 +1,5 @@
+/* $NetBSD$ */
+
 /*
  * Copyright © 2007 Alistair Crooks.  All rights reserved.
  *
@@ -25,13 +27,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_TREE_H_
-#define FUSE_TREE_H_	20070405
+
+#ifndef VIRTDIR_H_
+#define VIRTDIR_H_	20070405
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#include <fuse.h>
 
 #include "defs.h"
 
@@ -69,11 +70,7 @@ typedef struct VIRTDIR {
 
 int virtdir_init(virtdir_t *, const char *, struct stat *, struct stat *, struct stat *);
 int virtdir_add(virtdir_t *, const char *, size_t, uint8_t, const char *, size_t, uint16_t);
-int virtdir_del(virtdir_t *, const char *, size_t);
 virt_dirent_t *virtdir_find(virtdir_t *, const char *, size_t);
-virt_dirent_t *virtdir_find_tgt(virtdir_t *, const char *, size_t);
-void virtdir_drop(virtdir_t *);
-char *virtdir_rootdir(virtdir_t *);
 
 VIRTDIR *openvirtdir(virtdir_t *, const char *);
 virt_dirent_t *readvirtdir(VIRTDIR *);
