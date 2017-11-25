@@ -133,14 +133,9 @@ virtdir_init(virtdir_t *tp, const char *rootdir, struct stat *d, struct stat *f,
 int
 virtdir_add(virtdir_t *tp, const char *name, size_t size, uint8_t type, const char *tgt, size_t tgtlen, uint16_t select)
 {
-	struct stat	st;
 	char		path[MAXPATHLEN];
 	int		pathlen;
 
-	if (tp->v == NULL) {
-		(void) stat(".", &st);
-		virtdir_init(tp, NULL, &st, &st, &st);
-	}
 	pathlen = normalise(name, size, path, sizeof(path));
 	if (virtdir_find(tp, path, pathlen) != NULL) {
 		/* attempt to add a duplicate directory entry */

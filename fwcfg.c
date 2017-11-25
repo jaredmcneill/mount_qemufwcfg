@@ -56,6 +56,8 @@ struct fwcfg_file {
 static int fwcfg_fd;
 static mode_t fwcfg_dir_mask = 0555;
 static mode_t fwcfg_file_mask = 0444;
+static uid_t fwcfg_uid;
+static gid_t fwcfg_gid;
 
 static virtdir_t fwcfg_virtdir;
 
@@ -189,6 +191,14 @@ build_tree(virtdir_t *v)
 	char path[PATH_MAX];
 	struct fwcfg_file f;
 	uint32_t count, n;
+	struct stat st;
+
+	memset(&st, 0, sizeof(st));
+	st.st_uid = fwcfg_uid;
+	st.st_gid = fwcfg_gid;
+	virtdir_init(v, NULL, &st, &st, &st);
+
+printf("init with uid = %d, gid = %d\n", st.st_uid, st.st_gid);
 
 	set_index(FW_CFG_FILE_DIR);
 	read_data(&count, sizeof(count));
@@ -207,10 +217,16 @@ main(int argc, char *argv[])
 	int ch, m;
 	char *ep;
 
-	while ((ch = getopt(argc, argv, "F:m:M:")) != -1) {
+	fwcfg_uid = geteuid();
+	fwcfg_gid = getegid();
+
+	while ((ch = getopt(argc, argv, "F:g:m:M:u:")) != -1) {
 		switch (ch) {
 		case 'F':
 			path = optarg;
+			break;
+		case 'g':
+			fwcfg_gid = atoi(optarg);
 			break;
 		case 'm':
 			m = strtol(optarg, &ep, 8);
@@ -224,6 +240,9 @@ main(int argc, char *argv[])
 				errx(1, "invalid file mode: %s", optarg);
 			fwcfg_dir_mask = m;
 			break;
+		case 'u':
+			fwcfg_uid = atoi(optarg);
+			break;
 		}
 	}
 
@@ -232,6 +251,9 @@ main(int argc, char *argv[])
 		err(EXIT_FAILURE, "failed to open %s", path);
 
 	build_tree(&fwcfg_virtdir);
+
+	for (int i = 0; i < argc; i++)
+		printf("argv[%d] = \"%s\"\n", i, argv[i]);
 
 	return fuse_main(argc, argv, &fwcfg_ops, NULL);
 }
