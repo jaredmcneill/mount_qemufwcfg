@@ -127,7 +127,7 @@ fwcfg_read(const char *path, char *buf, size_t size, off_t offset,
 	/* Read the data */
 	read_data(buf, size);
 
-	return ep->tgtlen;
+	return size;
 }
 
 static int
