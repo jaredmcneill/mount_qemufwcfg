@@ -207,9 +207,9 @@ main(int argc, char *argv[])
 	int ch, m;
 	char *ep;
 
-	while ((ch = getopt(argc, argv, "f:m:M:")) != -1) {
+	while ((ch = getopt(argc, argv, "F:m:M:")) != -1) {
 		switch (ch) {
-		case 'f':
+		case 'F':
 			path = optarg;
 			break;
 		case 'm':
